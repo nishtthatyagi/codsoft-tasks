@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Advanced Calculator</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: black;
+    }
+
+    .calculator {
+        width: 330px;
+        padding: 20px;
+        background: #cce7ff;
+        border-radius: 20px;
+        box-shadow: 0 0 25px rgba(255,255,255,0.2);
+    }
+
+    #display {
+        width: 100%;
+        height: 65px;
+        font-size: 28px;
+        text-align: right;
+        padding: 10px;
+        border: none;
+        border-radius: 12px;
+        background: white;
+        margin-bottom: 20px;
+    }
+
+    .buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+
+    button {
+        height: 55px;
+        border: none;
+        border-radius: 50%;
+        font-size: 21px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+        box-shadow: 0 0 10px rgba(255,255,255,0.6);
+    }
+
+    .num { background: #4da6ff; color: white; }
+    .op { background: #33cc33; color: white; }
+    .clear { background: red; color: white; border-radius: 12px; }
+    .percent { background: #0066cc; color: white; }
+    .back { background: #ff6600; color: white; border-radius: 12px; }
+
+    .equal {
+        background: yellow;
+        color: black;
+        grid-column: span 2;
+        border-radius: 40px;
+        height: 65px;
+        font-size: 25px;
+        box-shadow: 0 0 15px yellow;
+    }
+
+    button:active {
+        transform: scale(0.9);
+        box-shadow: 0 0 5px white;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="calculator">
+    <input type="text" id="display" disabled>
+
+    <div class="buttons">
+        <button class="clear" data-val="clear">C</button>
+        <button class="percent" data-val="%">%</button>
+
+        <!-- Multiply symbol × displayed, * used internally -->
+        <button class="op" data-val="*">×</button>
+
+        <button class="op" data-val="/">/</button>
+
+        <button class="num" data-val="7">7</button>
+        <button class="num" data-val="8">8</button>
+        <button class="num" data-val="9">9</button>
+        <button class="op" data-val="-">-</button>
+
+        <button class="num" data-val="4">4</button>
+        <button class="num" data-val="5">5</button>
+        <button class="num" data-val="6">6</button>
+        <button class="op" data-val="+">+</button>
+
+        <button class="num" data-val="1">1</button>
+        <button class="num" data-val="2">2</button>
+        <button class="num" data-val="3">3</button>
+        <button class="back" data-val="back">⌫</button>
+
+        <button class="num" data-val="0">0</button>
+        <button class="equal" data-val="=">=</button>
+    </div>
+</div>
+
+<script>
+    const display = document.getElementById("display");
+    const buttons = document.querySelectorAll("button");
+
+    buttons.forEach(btn => {
+        btn.addEventListener("click", () => buttonClicked(btn.dataset.val));
+    });
+
+    function buttonClicked(value) {
+
+        // Clear
+        if (value === "clear") {
+            display.value = "";
+            return;
+        }
+
+        // Backspace
+        if (value === "back") {
+            display.value = display.value.slice(0, -1);
+            return;
+        }
+
+        // Prevent two operators in a row
+        if (["+", "-", "*", "/", "%"].includes(value)) {
+            let last = display.value.slice(-1);
+
+            // If last char also operator → replace it
+            if (["+", "-", "*", "/", "%"].includes(last)) {
+                display.value = display.value.slice(0, -1) + value;
+                return;
+            }
+        }
+
+        // Calculate
+        if (value === "=") {
+            try {
+                if (display.value.includes("/0")) {
+                    display.value = "Error";
+                } else {
+                    display.value = eval(display.value);
+                }
+            } catch {
+                display.value = "Error";
+            }
+            return;
+        }
+
+        // Add clicked value
+        display.value += value;
+    }
+
+    // Keyboard Support
+    document.addEventListener("keydown", (event) => {
+        const key = event.key;
+
+        if (!isNaN(key) || ["+", "-", "*", "/", "%"].includes(key)) {
+            display.value += key;
+        }
+        if (key === "Backspace") display.value = display.value.slice(0, -1);
+        if (key === "Enter") buttonClicked("=");
+    });
+</script>
+</body>
+</html>
